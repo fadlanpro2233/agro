@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroLoop - Mapala Bakti Kampus STAI Idrisiyyah</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        earth: {
+                            50: '#fafaf9',
+                            100: '#f5f5f4',
+                            800: '#57534e',
+                            900: '#44403c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        
+        .hero-bg {
+            background-image: linear-gradient(rgba(20, 83, 45, 0.85), rgba(20, 83, 45, 0.7)), url('https://images.unsplash.com/photo-1595841696677-6489b4f8f083?auto=format&fit=crop&q=80&w=1920');
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+
+        /* Custom Scrollbar for the Flowchart Container */
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4ade80; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #22c55e; }
+
+        /* ==========================================
+           FLOWCHART CSS LOGIC 
+           Fixed for mobile width constraint
+           ========================================== */
+        .fc-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem 0;
+            padding: 2rem 4rem 2rem 2rem;
+            position: relative;
+        }
+        
+        .fc-node {
+            background-color: #1a2e1e; color: #e5e7eb; border: 1px solid #4ade80;
+            padding: 1rem; border-radius: 0.375rem; text-align: center;
+            font-size: 0.9rem; font-weight: 500; width: 100%; max-width: 240px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); transition: all 0.3s ease;
+            position: relative; z-index: 10;
+        }
+        .fc-node:hover { transform: translateY(-2px); border-color: #86efac; color: #fff; box-shadow: 0 10px 15px -3px rgba(34,197,94,0.3); }
+
+        .col-span-2 { grid-column: 1 / -1; display: flex; justify-content: center; }
+        .col-left { grid-column: 1 / 2; display: flex; justify-content: center; }
+        .col-right { grid-column: 2 / 3; display: flex; justify-content: center; }
+
+        /* Lines */
+        .line-down::after {
+            content: ''; position: absolute; top: 100%; left: 50%;
+            width: 2px; height: 2rem; background-color: #d1d5db; transform: translateX(-50%); z-index: 1;
+        }
+        .arrow-down::after {
+            content: '▼'; position: absolute; top: calc(100% + 2rem - 10px);
+            left: 50%; transform: translateX(-50%); color: #d1d5db; font-size: 10px; z-index: 2;
+        }
+
+        .split-down::before {
+            content: ''; position: absolute; top: 100%; left: 50%; width: 2px; height: 1rem; background: #d1d5db; transform: translateX(-50%);
+        }
+        .split-down::after {
+            content: ''; position: absolute; top: calc(100% + 1rem); left: 25%; width: 50%; height: 1rem;
+            border-top: 2px solid #d1d5db; border-left: 2px solid #d1d5db; border-right: 2px solid #d1d5db;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        .split-arrow-l { position: absolute; top: calc(100% + 2rem - 10px); left: 25%; transform: translateX(-50%); color: #d1d5db; font-size: 10px; z-index: 2; }
+        .split-arrow-r { position: absolute; top: calc(100% + 2rem - 10px); right: 25%; transform: translateX(50%); color: #d1d5db; font-size: 10px; z-index: 2; }
+
+        .right-track { grid-column: 2 / 3; grid-row: 4 / 7; position: relative; }
+        .right-track::after {
+            content: ''; position: absolute; top: -1rem; bottom: -1rem; left: 50%;
+            width: 2px; background-color: #d1d5db; transform: translateX(-50%);
+        }
+
+        .merge-up { position: relative; width: 100%; height: 2rem; grid-column: 1 / -1; margin-top: 1rem; }
+        .merge-up::before {
+            content: ''; position: absolute; top: -1rem; left: 25%; width: 50%; height: 1rem;
+            border-bottom: 2px solid #d1d5db; border-left: 2px solid #d1d5db; border-right: 2px solid #d1d5db;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+        .merge-up::after {
+            content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 1rem;
+            background-color: #d1d5db; transform: translateX(-50%);
+        }
+        .merge-arrow { position: absolute; top: calc(1rem - 10px); left: 50%; transform: translateX(-50%); color: #d1d5db; font-size: 10px; z-index: 2; }
+
+        .loop-line {
+            position: absolute; top: 2.5rem; bottom: 2.5rem; right: 1rem; width: 20%;
+            border: 2px solid #d1d5db; border-left: none; border-radius: 0 1rem 1rem 0; z-index: 0;
+        }
+        .loop-arrow { position: absolute; top: -6px; left: -2px; color: #d1d5db; font-size: 12px; }
+    </style>
+</head>
+<body class="font-sans text-gray-800 bg-earth-50">
+
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 glass-nav border-b border-gray-200 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 bg-brand-700 rounded-lg flex items-center justify-center text-white text-lg shadow-md">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-tight text-gray-900">Agro<span class="text-brand-600">Loop</span></span>
+                </div>
+                
+                <div class="hidden lg:flex space-x-8 items-center">
+                    <a href="#latar-belakang" class="text-gray-600 hover:text-brand-700 font-medium transition-colors">Latar Belakang</a>
+                    <a href="#cara-kerja" class="text-gray-600 hover:text-brand-700 font-medium transition-colors">Cara Kerja</a>
+                    <a href="#manfaat" class="text-gray-600 hover:text-brand-700 font-medium transition-colors">Manfaat</a>
+                    <a href="#roadmap" class="text-gray-600 hover:text-brand-700 font-medium transition-colors">Roadmap</a>
+                    <a href="#mitra" class="text-gray-600 hover:text-brand-700 font-medium transition-colors">Mitra</a>
+                </div>
+
+                <div class="lg:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-brand-700 p-2">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-100 absolute w-full shadow-xl">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="#latar-belakang" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-brand-50">Latar Belakang</a>
+                <a href="#cara-kerja" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-brand-50">Cara Kerja</a>
+                <a href="#manfaat" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-brand-50">Manfaat</a>
+                <a href="#roadmap" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-brand-50">Roadmap</a>
+                <a href="#mitra" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-brand-50">Mitra</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="relative pt-32 pb-24 lg:pt-56 lg:pb-48 hero-bg" id="home">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10" data-aos="fade-up" data-aos-duration="1000">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 border border-white/30 text-white mb-6 backdrop-blur-md">
+                <i class="fa-solid fa-mountain text-green-300"></i>
+                <span class="text-xs md:text-sm font-semibold tracking-wide uppercase">Mapala Bakti Kampus STAI Idrisiyyah</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-7xl font-extrabold text-white leading-tight mb-6 max-w-5xl mx-auto drop-shadow-xl">
+                AgroLoop: Siklus Produktif <br />
+                <span class="text-green-400">Limbah Organik</span>
+            </h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-200 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+                Inovasi merubah residu pertanian jerami padi dan kotoran sapi menjadi biocompost penopang swasembada pangan lokal.
+            </p>
+            <div class="flex justify-center gap-4">
+                <a href="#cara-kerja" class="bg-brand-600 text-white px-8 py-4 rounded-md font-bold text-base hover:bg-brand-500 transition-all shadow-xl hover:-translate-y-1 flex items-center gap-2">
+                    Jelajahi Sistem <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+            <svg class="relative block w-full h-[50px] md:h-[80px]" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V120H1200V0C1000,100 600,120 0,0Z" class="fill-earth-50"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- LATAR BELAKANG -->
+    <section id="latar-belakang" class="py-24 bg-earth-50 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div data-aos="fade-right" data-aos-duration="1000">
+                    <h2 class="text-sm font-bold text-brand-700 uppercase tracking-widest mb-3">Latar Belakang</h2>
+                    <h3 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">Berawal Dari Persoalan Limbah yang Terbengkalai</h3>
+                    <div class="space-y-4 text-gray-600 text-lg">
+                        <p>Setelah masa panen, jerami padi sering dianggap sebagai penghambat pengolahan tanah berikutnya. Solusi pintas yang kerap diambil petani adalah <strong class="text-red-600">membakarnya</strong>.</p>
+                        <p>Di saat yang sama, kegiatan peternakan sapi menghasilkan kotoran dalam volume besar yang jika tidak ditangani dengan baik, akan mencemari lingkungan sekitar.</p>
+                    </div>
+                </div>
+                <div class="relative" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                    <div class="bg-white rounded-2xl p-8 shadow-xl border-l-4 border-brand-500">
+                        <h4 class="font-bold text-gray-900 text-xl mb-4"><i class="fa-solid fa-lightbulb text-yellow-500 mr-2"></i> Solusi Sirkular AgroLoop</h4>
+                        <p class="text-gray-600 leading-relaxed">
+                            Kami mengintegrasikan kedua masalah tersebut. Jerami pascapanen dicacah dan dikombinasikan dengan kotoran sapi melalui proses pengomposan terkontrol. 
+                            Hasilnya adalah <strong>Biocompost bermutu tinggi</strong> yang dikembalikan ke petani untuk menyuburkan lahan, tanpa harus membakar limbah.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MANFAAT (NEW SECTION) -->
+    <section id="manfaat" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
+                <h2 class="text-sm font-bold text-brand-600 uppercase tracking-widest mb-2">Nilai Tambah Program</h2>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-gray-900">3 Pilar Manfaat Utama</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Lingkungan -->
+                <div class="bg-earth-50 rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all" data-aos="zoom-in" data-aos-duration="800">
+                    <div class="w-14 h-14 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3">Lingkungan Terjaga</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Mengurangi emisi karbon dan polusi udara dari praktik pembakaran jerami, serta mencegah pencemaran air dari sanitasi kotoran sapi yang buruk.
+                    </p>
+                </div>
+                
+                <!-- Ekonomi -->
+                <div class="bg-earth-50 rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all" data-aos="zoom-in" data-aos-duration="800" data-aos-delay="150">
+                    <div class="w-14 h-14 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3">Ekonomi Sirkular</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Menciptakan produk turunan berupa pupuk Biocompost dengan Harga Pokok Produksi (HPP) rendah yang memiliki nilai jual, memangkas biaya pupuk kimia petani.
+                    </p>
+                </div>
+
+                <!-- Sosial -->
+                <div class="bg-earth-50 rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all" data-aos="zoom-in" data-aos-duration="800" data-aos-delay="300">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6">
+                        <i class="fa-solid fa-handshake-angle"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3">Pemberdayaan Sosial</h4>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Memberdayakan kelompok tani dan peternak lokal melalui edukasi kolaboratif, serta menyediakan wadah riset terapan bagi mahasiswa (Mapala).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CARA KERJA / FLOWCHART (FIXED MOBILE SCROLL) -->
+    <section id="cara-kerja" class="py-24 bg-gray-900 border-y border-gray-800 text-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-10" data-aos="fade-up">
+                <h2 class="text-sm font-bold text-brand-400 uppercase tracking-widest mb-2">Sistem Operasional</h2>
+                <h3 class="text-3xl font-extrabold mb-4">Flowchart Cara Kerja AgroLoop</h3>
+            </div>
+
+            <!-- Mobile scroll hint -->
+            <p class="md:hidden text-center text-sm text-yellow-400 mb-4 animate-pulse">
+                <i class="fas fa-arrows-alt-h mr-2"></i>Geser bagan ke kanan untuk melihat selengkapnya
+            </p>
+
+            <!-- 
+                CRITICAL FIX: overflow-x-auto on wrapper, 
+                min-w-[700px] on inner content to prevent squishing 
+            -->
+            <div class="w-full overflow-x-auto pb-8 custom-scrollbar relative" data-aos="fade-up" data-aos-delay="200">
+                <div class="mx-auto w-full min-w-[750px] max-w-4xl bg-gray-800/50 rounded-xl border border-gray-700">
+                    
+                    <div class="fc-wrapper">
+                        <!-- Loop Line (Right) -->
+                        <div class="loop-line"><i class="fa-solid fa-caret-left loop-arrow"></i></div>
+
+                        <!-- 1 -->
+                        <div class="col-span-2 line-down arrow-down relative">
+                            <div class="fc-node uppercase font-bold !bg-gray-800 border-gray-500">Jerami padi pascapanen</div>
+                        </div>
+
+                        <!-- 2 -->
+                        <div class="col-span-2 split-down relative mt-8">
+                            <div class="fc-node">Pengumpulan dan pemilahan</div>
+                            <i class="fa-solid fa-caret-down split-arrow-l"></i>
+                            <i class="fa-solid fa-caret-down split-arrow-r"></i>
+                        </div>
+
+                        <!-- 3 -->
+                        <div class="col-left line-down arrow-down mt-8">
+                            <div class="fc-node">Jerami layak pakan</div>
+                        </div>
+                        <div class="col-right mt-8 relative z-10">
+                            <div class="fc-node">Jerami untuk kompos</div>
+                        </div>
+
+                        <!-- 4 -->
+                        <div class="col-left line-down arrow-down mt-8">
+                            <div class="fc-node">Pengolahan pakan</div>
+                        </div>
+                        <div class="right-track"></div>
+
+                        <!-- 5 -->
+                        <div class="col-left line-down arrow-down mt-8">
+                            <div class="fc-node">Peternakan sapi</div>
+                        </div>
+
+                        <!-- 6 -->
+                        <div class="col-left mt-8">
+                            <div class="fc-node">Kotoran sapi</div>
+                        </div>
+
+                        <!-- Merge Area -->
+                        <div class="merge-up relative">
+                            <i class="fa-solid fa-caret-down merge-arrow"></i>
+                        </div>
+
+                        <!-- 7 -->
+                        <div class="col-span-2 line-down arrow-down -mt-4">
+                            <div class="fc-node">Pengomposan</div>
+                        </div>
+
+                        <!-- 8 -->
+                        <div class="col-span-2 line-down arrow-down mt-8">
+                            <div class="fc-node uppercase font-bold !bg-brand-900 border-brand-400 text-brand-100">JERAMI BIOCOMPOST</div>
+                        </div>
+
+                        <!-- 9 -->
+                        <div class="col-span-2 mt-8">
+                            <div class="fc-node !bg-gray-800 border-gray-500">Petani</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROADMAP EKSEKUSI (NEW SECTION) -->
+    <section id="roadmap" class="py-24 bg-earth-50">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-sm font-bold text-brand-700 uppercase tracking-widest mb-2">Timeline Pelaksanaan</h2>
+                <h3 class="text-3xl font-extrabold text-gray-900">Roadmap Eksekusi Program</h3>
+            </div>
+
+            <div class="relative border-l-2 border-brand-200 ml-4 md:ml-12 space-y-12">
+                <!-- Fase 1 -->
+                <div class="relative pl-8 md:pl-10" data-aos="fade-left" data-aos-duration="800">
+                    <div class="absolute -left-[11px] bg-brand-500 w-5 h-5 rounded-full ring-4 ring-earth-50"></div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-1">Fase 1: Persiapan Sistem & Tim</h4>
+                    <p class="text-brand-600 text-sm font-medium mb-3">Konsolidasi Internal</p>
+                    <p class="text-gray-600 text-sm">Pembentukan divisi kerja (Operasional, Logistik, Data) dan pembuatan kerangka *database* pencatatan metrik lapangan (berat input, penyusutan, kualitas output).</p>
+                </div>
+                <!-- Fase 2 -->
+                <div class="relative pl-8 md:pl-10" data-aos="fade-left" data-aos-duration="800" data-aos-delay="100">
+                    <div class="absolute -left-[11px] bg-brand-500 w-5 h-5 rounded-full ring-4 ring-earth-50"></div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-1">Fase 2: Audiensi Kemitraan</h4>
+                    <p class="text-brand-600 text-sm font-medium mb-3">Lobi Strategis</p>
+                    <p class="text-gray-600 text-sm">Membuat MoU terbatas dengan pihak penggilingan padi dan peternakan sapi untuk mengamankan rantai pasok bahan baku selama uji coba.</p>
+                </div>
+                <!-- Fase 3 -->
+                <div class="relative pl-8 md:pl-10" data-aos="fade-left" data-aos-duration="800" data-aos-delay="200">
+                    <div class="absolute -left-[11px] bg-brand-500 w-5 h-5 rounded-full ring-4 ring-earth-50"></div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-1">Fase 3: Pilot Project (Skala Mini)</h4>
+                    <p class="text-brand-600 text-sm font-medium mb-3">Lapangan Terkontrol</p>
+                    <p class="text-gray-600 text-sm">Uji coba pembuatan biocompost pada *batch* kecil (500kg - 1 Ton). Menyesuaikan Standar Operasional Prosedur (SOP) parameter kelembapan, bau, dan suhu.</p>
+                </div>
+                <!-- Fase 4 -->
+                <div class="relative pl-8 md:pl-10" data-aos="fade-left" data-aos-duration="800" data-aos-delay="300">
+                    <div class="absolute -left-[11px] bg-gray-300 w-5 h-5 rounded-full ring-4 ring-earth-50"></div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-1">Fase 4: Finalisasi HPP & Ekspansi</h4>
+                    <p class="text-gray-500 text-sm font-medium mb-3">Komersialisasi & Pendanaan</p>
+                    <p class="text-gray-600 text-sm">Merekap data riil untuk menentukan Harga Pokok Produksi (HPP). Menyempurnakan dokumen RAB untuk mengincar hibah lingkungan atau dukungan CSR.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MITRA STRATEGIS -->
+    <section id="mitra" class="py-24 bg-brand-900 text-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16" data-aos="zoom-in">
+                <h2 class="text-sm font-bold text-brand-300 uppercase tracking-widest mb-3">Kolaborasi Ekosistem</h2>
+                <h3 class="text-3xl font-extrabold mb-4">Calon Mitra Strategis</h3>
+                <p class="text-brand-100">Eksekusi skala besar sangat bergantung pada ketersediaan material yang disuplai oleh ekosistem bisnis lokal.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white rounded-xl p-8 text-gray-800 shadow-xl" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-700">
+                            <i class="fa-solid fa-industry"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">CV Jembar Rahayu Rice Mill</h4>
+                            <p class="text-xs text-gray-500"><i class="fa-solid fa-location-dot"></i> Kec. Ciawi, Tasikmalaya</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-4 border-t pt-4">
+                        Potensi jaringan persawahan ±30 hektare. Penyedia utama bahan baku limbah <strong>jerami padi pascapanen</strong> untuk volume skala menengah hingga besar.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 text-gray-800 shadow-xl" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-700">
+                            <i class="fa-solid fa-cow"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">PT Lintas Nusa Pratama</h4>
+                            <p class="text-xs text-gray-500"><i class="fa-solid fa-location-dot"></i> Kec. Indihiang, Tasikmalaya</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-4 border-t pt-4">
+                        Populasi peternakan mencapai ±1.000 ekor sapi. Sumber vital suplai bahan <strong>kotoran sapi</strong> (pupuk kandang) sebagai starter mikroba pengomposan.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-earth-900 pt-12 pb-8 border-t border-earth-800 text-gray-400 text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-leaf text-brand-500 text-xl"></i>
+                    <span class="font-bold text-xl text-white">Agro<span class="text-brand-500">Loop</span></span>
+                </div>
+                <div class="text-center md:text-right">
+                    <p class="text-white font-medium mb-1">Mapala Bakti Kampus STAI Idrisiyyah</p>
+                    <p>Student Environmental Project (SEP)</p>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-earth-800 text-center text-xs">
+                &copy; 2026 AgroLoop Project. Semua hak cipta dilindungi.
+            </div>
+        </div>
+    </footer>
+
+    <!-- AOS Script -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize Animations
+        AOS.init({
+            once: true, // whether animation should happen only once - while scrolling down
+            offset: 50, // offset (in px) from the original trigger point
+        });
+
+        // Mobile Menu Logic
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+        menu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => menu.classList.add('hidden'));
+        });
+    </script>
+</body>
+</html>
